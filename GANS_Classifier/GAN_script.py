@@ -30,6 +30,12 @@ def load_data(directory):
     '''Loop over each folder (letters) in notMNIST_small data folder'''
     for label, letter in enumerate(sorted(os.listdir(directory))):
         letter_dir = os.path.join(directory, letter)
+        '''If Statement resolves issue of viewing .DS_Store as a directory. 
+        
+        Now, skips over any non letter_dir files on path to directory
+        '''
+        if not os.path.isdir(letter_dir):
+            continue
         '''Loop over each image in letters folder'''
         for img_file in os.listdir(letter_dir):
             try:
@@ -45,8 +51,13 @@ def load_data(directory):
                 '''Additional Channel Dimension for each image to make (28,28,1) shape for discriminator input'''
                 img_array = np.expand_dims(img_array, axis=-1)
                 data.append(img_array)
-                labels.append(label)
-            '''Catch all exceptions'''
+                '''Changed label range to adjust to expected input in tensorflow for a 10 
+
+                class problem (range of [0, 9)) given that previously was giving 
+
+                label range of [1, 10)
+                '''
+                labels.append(label - 1)
             except:
                 pass
     data = np.array(data, dtype=np.float64)
@@ -73,7 +84,7 @@ def make_generator_model():
     model.add(layers.Conv2DTranspose(64, (5, 5), strides=(2, 2), padding='same', use_bias=False))
     model.add(layers.BatchNormalization())
     model.add(layers.LeakyReLU())
-    '''Final transposed convolutional layer, outputs the final image, uses tanh activation function''''
+    '''Final transposed convolutional layer, outputs the final image, uses tanh activation function'''
     model.add(layers.Conv2DTranspose(1, (5, 5), strides=(2, 2), padding='same', use_bias=False, activation='tanh'))
     return model
 
@@ -263,6 +274,30 @@ discriminator = make_discriminator_model()
 '''Train the model and get loss histories'''
 gen_loss_history, disc_loss_history = train(dataset, EPOCHS, save_image_folder='training_images')
 
+'''TRAINING HISTORY PLOT FOR D_Loss, G_Loss'''
+def plot_training_history(gen_loss_history, disc_loss_history):
+    epochs = range(1, len(gen_loss_history) + 1)
+
+    '''Plotting Generator Loss'''
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, gen_loss_history, label='Generator Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('G_Loss')
+    plt.title('Generator Loss')
+    plt.legend()
+
+    '''Plotting Discriminator Loss'''
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, disc_loss_history, label='Discriminator Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('D_Loss')
+    plt.title('Discriminator Loss')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
 '''Get and print the final accuracy'''
 final_accuracy = calculate_accuracy(discriminator, dataset)
 print(f"Final Classification Accuracy: {final_accuracy.numpy() * 100:.2f}%")
@@ -271,7 +306,6 @@ print(f"Final Classification Accuracy: {final_accuracy.numpy() * 100:.2f}%")
 with open('training_metrics.txt', 'w') as file:
     for i in range(EPOCHS):
         file.write(f"Epoch {i+1}, Generator Loss: {gen_loss_history[i]}, Discriminator Loss: {disc_loss_history[i]}, Final Classification Accuracy: {final_accuracy.numpy() * 100:.2f}%\n")
-
 
 '''GIF of the training progress'''
 create_gif(image_folder='training_images', gif_name='dcgan_training_progress.gif')
