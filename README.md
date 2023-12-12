@@ -68,11 +68,15 @@ These algorithms and networks were implemented through Python and Jupyter Notebo
 The overall results were incredibly positive and were as follows (by measure of classification accuracy): 
 
  - Multinomial Regression: 86.14%
+    (Confusion Matrix of Results)
+ ![Confusion Matrix of Logistic Regression](https://github.com/dominicfanucchi/aai-501_group2/blob/main/Readme_Images/C_M_Carlos.png)
  
  - Convolutional Neural Network (10 Epochs): 92.34%
+    (Model Accuracy and Loss)
+ ![Training and Testing Graph](https://github.com/dominicfanucchi/aai-501_group2/blob/main/Readme_Images/Accuracy_Dominic.png)
 
  - Semi-Supervised DCGAN (100 Epochs): 95.96%
-
+    (Artificial Instance Generation at Each Epoch)
 ![Gif of Semi-Supervised DCGAN](https://github.com/dominicfanucchi/aai-501_group2/blob/main/GANS_Classifier/Run_Two/Run_2.gif)
 
 ## References
